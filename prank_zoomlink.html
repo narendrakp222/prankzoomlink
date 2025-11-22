@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Zoom - Join Meeting</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<style>
+  body { font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:#0b1220; color:#fff; margin:0; display:flex; align-items:center; justify-content:center; height:100vh;}
+  .zoom-wrapper { width:920px; max-width:95%; background:#0f1724; border-radius:12px; box-shadow: 0 10px 40px rgba(2,6,23,0.7); overflow:hidden; border:1px solid rgba(255,255,255,0.03); }
+  .header { background: linear-gradient(90deg,#0b1320,#0f1a2b); padding:18px 22px; display:flex; align-items:center; gap:12px;}
+  .logo { width:42px; height:42px; border-radius:8px; background:linear-gradient(135deg,#3b82f6,#06b6d4); display:flex; align-items:center; justify-content:center; font-weight:700; color:white;}
+  .title { font-size:16px; font-weight:600; }
+  .sub { color:rgba(255,255,255,0.7); font-size:12px; margin-top:4px;}
+  .content { display:flex; gap:20px; padding:28px; }
+  .left { flex:1; min-width:280px; background:linear-gradient(180deg,#071024,#08121a); border-radius:10px; padding:20px; display:flex; flex-direction:column; gap:14px; justify-content:center; }
+  .input { background:rgba(255,255,255,0.03); border-radius:8px; padding:12px; display:flex; gap:8px; align-items:center;}
+  .input input { flex:1; background:transparent; border:0; color:white; outline:none; font-size:14px;}
+  .btn { background:#3b82f6; padding:12px 14px; border-radius:8px; font-weight:700; cursor:pointer; border:0; color:#04122b; }
+  .btn:active { transform:translateY(1px); }
+  .right { width:380px; display:flex; flex-direction:column; gap:12px; align-items:center; justify-content:center; }
+  .camera { width:100%; height:210px; border-radius:8px; background:linear-gradient(180deg,#0a2540,#052034); display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.6); border:2px dashed rgba(255,255,255,0.03); }
+  .hint { font-size:13px; color:rgba(255,255,255,0.7); text-align:center; padding-top:6px; }
+  .small { font-size:12px; color:rgba(255,255,255,0.55); }
+  .footer { padding:12px 18px; background:linear-gradient(90deg, rgba(255,255,255,0.01), rgba(255,255,255,0.00)); display:flex; justify-content:space-between; align-items:center; }
+  /* Funny reveal styles */
+  .reveal { position:fixed; inset:0; display:flex; align-items:center; justify-content:center; background:rgba(3,7,18,0.9); color:#fff; flex-direction:column; gap:14px; opacity:0; pointer-events:none; transition:opacity 400ms ease; z-index:999; }
+  .reveal.show { opacity:1; pointer-events:auto; }
+  .reveal-card { background:linear-gradient(180deg,#051428,#062034); padding:28px; border-radius:12px; text-align:center; box-shadow:0 20px 60px rgba(2,6,23,0.6); border:1px solid rgba(255,255,255,0.03); }
+  .big { font-size:36px; font-weight:800; letter-spacing:1px; }
+  .tiny { font-size:16px; color:rgba(255,255,255,0.85); margin-top:6px; }
+  .confetti { position:absolute; inset:0; pointer-events:none; z-index:1000; overflow:hidden; }
+  /* simple confetti pieces */
+  .piece { position:absolute; width:10px; height:14px; opacity:0.95; transform-origin:center; }
+  @keyframes drop {
+    0% { transform: translateY(-20vh) rotate(0) }
+    100% { transform: translateY(120vh) rotate(720deg) }
+  }
+  .small-note { font-size:13px; color:rgba(255,255,255,0.6); margin-top:8px; }
+</style>
+</head>
+<body>
+  <div class="zoom-wrapper" role="main" aria-label="Fake Zoom Join">
+    <div class="header">
+      <div class="logo">Z</div>
+      <div>
+        <div class="title">Zoom</div>
+        <div class="sub">Join a Meeting — (totally not real)</div>
+      </div>
+    </div>
+
+    <div class="content">
+      <div class="left">
+        <div style="font-weight:700; font-size:15px;">Join Meeting</div>
+        <div class="input"><input id="meetingId" placeholder="Enter meeting ID or link (e.g. 123-456-789)" /></div>
+        <div class="input"><input id="name" placeholder="Your name" /></div>
+        <div style="display:flex; gap:8px;">
+          <button class="btn" id="joinBtn">Join</button>
+          <button class="btn" id="pretendBtn" style="background:transparent; color:#9fb4ff; border:1px solid rgba(255,255,255,0.04);">I forgot the link</button>
+        </div>
+        <div class="small" style="margin-top:8px;">Tip: Try entering a funny meeting ID (like <em>000-LOL-123</em>)</div>
+      </div>
+
+      <div class="right">
+        <div class="camera">No camera detected — preview disabled</div>
+        <div class="hint">Waiting room • Host will let you in soon</div>
+        <div class="small-note">Pro tip: This page is for fun — does not connect to Zoom servers.</div>
+      </div>
+    </div>
+
+    <div class="footer">
+      <div class="small">Version 5.0</div>
+      <div class="small">Need help? Call: +977-000-PRANK</div>
+    </div>
+  </div>
+
+  <!-- reveal overlay -->
+  <div class="reveal" id="reveal">
+    <div class="reveal-card">
+      <div class="big" id="bigText">सुधेरिहारल रे केटाहरू! 🎉</div>
+      <!-- <div class="tiny">यह Zoom होइन — चियाउँदै बाहिर निस्कनुहोला </div> -->
+      <div style="margin-top:12px;"><button class="btn" id="closeReveal">OK, LOL</button></div>
+    </div>
+    <div class="confetti" id="confetti"></div>
+  </div>
+
+<script>
+  // Basic behavior: show reveal when Join clicked (but we don't collect data)
+  const joinBtn = document.getElementById('joinBtn');
+  const pretendBtn = document.getElementById('pretendBtn');
+  const reveal = document.getElementById('reveal');
+  const closeReveal = document.getElementById('closeReveal');
+  const bigText = document.getElementById('bigText');
+
+  function randomInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+  function spawnConfetti() {
+    const conf = document.getElementById('confetti');
+    conf.innerHTML = '';
+    const colors = ["#f97316","#f43f5e","#f59e0b","#10b981","#60a5fa","#8b5cf6","#ec4899"];
+    for(let i=0;i<60;i++){
+      const d = document.createElement('div');
+      d.className='piece';
+      d.style.left = (Math.random()*100)+'%';
+      d.style.top = (-10 - Math.random()*30)+'vh';
+      d.style.width = (6 + Math.random()*12)+'px';
+      d.style.height = (8 + Math.random()*14)+'px';
+      d.style.background = colors[Math.floor(Math.random()*colors.length)];
+      d.style.borderRadius = (Math.random()*20)+'%';
+      d.style.transform = 'rotate('+randomInt(0,360)+'deg)';
+      d.style.animation = `drop ${4+Math.random()*3}s linear ${Math.random()*0.5}s forwards`;
+      conf.appendChild(d);
+    }
+  }
+
+  function playBeep() {
+    // small friendly beep using WebAudio
+    try{
+      const ctx = new (window.AudioContext||window.webkitAudioContext)();
+      const o = ctx.createOscillator();
+      const g = ctx.createGain();
+      o.type='sine';
+      o.frequency.setValueAtTime(880,ctx.currentTime);
+      g.gain.setValueAtTime(0.0001,ctx.currentTime);
+      o.connect(g); g.connect(ctx.destination);
+      o.start();
+      g.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
+      o.stop(ctx.currentTime + 0.6);
+    }catch(e){ /* audio blocked */ }
+  }
+
+  joinBtn.onclick = () => {
+    const name = document.getElementById('name').value || 'Guest';
+    // personalize message a bit
+    bigText.textContent = `सुध्रिहाल रे  ${name} — केटा! 🎉`;
+    spawnConfetti();
+    playBeep();
+    setTimeout(()=> reveal.classList.add('show'), 250);
+  };
+
+  pretendBtn.onclick = () => {
+    bigText.textContent = 'सुधेरिहारल रे केटाहरू! 😂';
+    spawnConfetti();
+    playBeep();
+    reveal.classList.add('show');
+  };
+
+  closeReveal.onclick = () => {
+    reveal.classList.remove('show');
+  };
+
+  // Close on click outside card
+  reveal.addEventListener('click', (e) => {
+    if(e.target === reveal) reveal.classList.remove('show');
+  });
+
+  // Small accessibility: Enter key triggers join
+  document.getElementById('meetingId').addEventListener('keydown', (e)=> { if(e.key==='Enter') joinBtn.click(); });
+  document.getElementById('name').addEventListener('keydown', (e)=> { if(e.key==='Enter') joinBtn.click(); });
+</script>
+</body>
+</html>
